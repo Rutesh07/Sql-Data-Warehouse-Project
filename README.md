@@ -125,7 +125,7 @@ data-warehouse-project/
 └── requirements.txt                    # Project requirements
 
 
----
 
+---
 ## Credits
-Built with guidance and inspiration from **Data With Baraa**.
+- Built with guidance and inspiration from [Data With Baraa](https://www.youtube.com/@DataWithBaraa).
