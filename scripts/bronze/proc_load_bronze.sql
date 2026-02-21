@@ -1,108 +1,141 @@
 /*
 ===============================================================================
-Stored Procedure: load_bronze
+Stored Procedure: Load Bronze Layer (Source -> Bronze)
 ===============================================================================
-Purpose:
-    Loads CSV files into the bronze schema tables.
-    - Truncates tables before load
-    - Uses LOAD DATA LOCAL INFILE for bulk ingestion
+Script Purpose:
+    This stored procedure loads data into the 'bronze' schema from external CSV files. 
+    It performs the following actions:
+    - Truncates the bronze tables before loading data.
+    - Uses the `BULK INSERT` command to load data from csv Files to bronze tables.
+
+Parameters:
+    None. 
+	  This stored procedure does not accept any parameters or return any values.
+
+Usage Example:
+    EXEC bronze.load_bronze;
 ===============================================================================
 */
-
-DELIMITER $$
-
-DROP PROCEDURE IF EXISTS bronze.load_bronze $$
-
-CREATE PROCEDURE bronze.load_bronze()
+CREATE OR ALTER PROCEDURE bronze.load_bronze AS
 BEGIN
+	DECLARE @start_time DATETIME, @end_time DATETIME, @batch_start_time DATETIME, @batch_end_time DATETIME; 
+	BEGIN TRY
+		SET @batch_start_time = GETDATE();
+		PRINT '================================================';
+		PRINT 'Loading Bronze Layer';
+		PRINT '================================================';
 
-    DECLARE batch_start DATETIME;
-    DECLARE batch_end DATETIME;
+		PRINT '------------------------------------------------';
+		PRINT 'Loading CRM Tables';
+		PRINT '------------------------------------------------';
 
-    SET batch_start = NOW();
+		SET @start_time = GETDATE();
+		PRINT '>> Truncating Table: bronze.crm_cust_info';
+		TRUNCATE TABLE bronze.crm_cust_info;
+		PRINT '>> Inserting Data Into: bronze.crm_cust_info';
+		BULK INSERT bronze.crm_cust_info
+		FROM 'C:\sql\dwh_project\datasets\source_crm\cust_info.csv'
+		WITH (
+			FIRSTROW = 2,
+			FIELDTERMINATOR = ',',
+			TABLOCK
+		);
+		SET @end_time = GETDATE();
+		PRINT '>> Load Duration: ' + CAST(DATEDIFF(second, @start_time, @end_time) AS NVARCHAR) + ' seconds';
+		PRINT '>> -------------';
 
-    SELECT '========================================' AS message;
-    SELECT 'Loading Bronze Layer Started...' AS message;
-    SELECT '========================================' AS message;
+        SET @start_time = GETDATE();
+		PRINT '>> Truncating Table: bronze.crm_prd_info';
+		TRUNCATE TABLE bronze.crm_prd_info;
 
-    -- ===============================
-    -- CRM TABLES
-    -- ===============================
+		PRINT '>> Inserting Data Into: bronze.crm_prd_info';
+		BULK INSERT bronze.crm_prd_info
+		FROM 'C:\sql\dwh_project\datasets\source_crm\prd_info.csv'
+		WITH (
+			FIRSTROW = 2,
+			FIELDTERMINATOR = ',',
+			TABLOCK
+		);
+		SET @end_time = GETDATE();
+		PRINT '>> Load Duration: ' + CAST(DATEDIFF(second, @start_time, @end_time) AS NVARCHAR) + ' seconds';
+		PRINT '>> -------------';
 
-    SELECT 'Loading CRM Tables...' AS message;
+        SET @start_time = GETDATE();
+		PRINT '>> Truncating Table: bronze.crm_sales_details';
+		TRUNCATE TABLE bronze.crm_sales_details;
+		PRINT '>> Inserting Data Into: bronze.crm_sales_details';
+		BULK INSERT bronze.crm_sales_details
+		FROM 'C:\sql\dwh_project\datasets\source_crm\sales_details.csv'
+		WITH (
+			FIRSTROW = 2,
+			FIELDTERMINATOR = ',',
+			TABLOCK
+		);
+		SET @end_time = GETDATE();
+		PRINT '>> Load Duration: ' + CAST(DATEDIFF(second, @start_time, @end_time) AS NVARCHAR) + ' seconds';
+		PRINT '>> -------------';
 
-    TRUNCATE TABLE bronze.crm_cust_info;
+		PRINT '------------------------------------------------';
+		PRINT 'Loading ERP Tables';
+		PRINT '------------------------------------------------';
+		
+		SET @start_time = GETDATE();
+		PRINT '>> Truncating Table: bronze.erp_loc_a101';
+		TRUNCATE TABLE bronze.erp_loc_a101;
+		PRINT '>> Inserting Data Into: bronze.erp_loc_a101';
+		BULK INSERT bronze.erp_loc_a101
+		FROM 'C:\sql\dwh_project\datasets\source_erp\loc_a101.csv'
+		WITH (
+			FIRSTROW = 2,
+			FIELDTERMINATOR = ',',
+			TABLOCK
+		);
+		SET @end_time = GETDATE();
+		PRINT '>> Load Duration: ' + CAST(DATEDIFF(second, @start_time, @end_time) AS NVARCHAR) + ' seconds';
+		PRINT '>> -------------';
 
-    LOAD DATA LOCAL INFILE '/Users/ruteshzalavadiya/Desktop/source_crm/crm_cust_info.csv'
-    INTO TABLE bronze.crm_cust_info
-    FIELDS TERMINATED BY ','
-    ENCLOSED BY '"'
-    LINES TERMINATED BY '\n'
-    IGNORE 1 ROWS;
+		SET @start_time = GETDATE();
+		PRINT '>> Truncating Table: bronze.erp_cust_az12';
+		TRUNCATE TABLE bronze.erp_cust_az12;
+		PRINT '>> Inserting Data Into: bronze.erp_cust_az12';
+		BULK INSERT bronze.erp_cust_az12
+		FROM 'C:\sql\dwh_project\datasets\source_erp\cust_az12.csv'
+		WITH (
+			FIRSTROW = 2,
+			FIELDTERMINATOR = ',',
+			TABLOCK
+		);
+		SET @end_time = GETDATE();
+		PRINT '>> Load Duration: ' + CAST(DATEDIFF(second, @start_time, @end_time) AS NVARCHAR) + ' seconds';
+		PRINT '>> -------------';
 
-    TRUNCATE TABLE bronze.crm_prd_info;
+		SET @start_time = GETDATE();
+		PRINT '>> Truncating Table: bronze.erp_px_cat_g1v2';
+		TRUNCATE TABLE bronze.erp_px_cat_g1v2;
+		PRINT '>> Inserting Data Into: bronze.erp_px_cat_g1v2';
+		BULK INSERT bronze.erp_px_cat_g1v2
+		FROM 'C:\sql\dwh_project\datasets\source_erp\px_cat_g1v2.csv'
+		WITH (
+			FIRSTROW = 2,
+			FIELDTERMINATOR = ',',
+			TABLOCK
+		);
+		SET @end_time = GETDATE();
+		PRINT '>> Load Duration: ' + CAST(DATEDIFF(second, @start_time, @end_time) AS NVARCHAR) + ' seconds';
+		PRINT '>> -------------';
 
-    LOAD DATA LOCAL INFILE '/Users/ruteshzalavadiya/Desktop/source_crm/crm_prd_info.csv'
-    INTO TABLE bronze.crm_prd_info
-    FIELDS TERMINATED BY ','
-    ENCLOSED BY '"'
-    LINES TERMINATED BY '\n'
-    IGNORE 1 ROWS;
-
-    TRUNCATE TABLE bronze.crm_sales_details;
-
-    LOAD DATA LOCAL INFILE '/Users/ruteshzalavadiya/Desktop/source_crm/crm_sales_details.csv'
-    INTO TABLE bronze.crm_sales_details
-    FIELDS TERMINATED BY ','
-    ENCLOSED BY '"'
-    LINES TERMINATED BY '\n'
-    IGNORE 1 ROWS;
-
-    -- ===============================
-    -- ERP TABLES
-    -- ===============================
-
-    SELECT 'Loading ERP Tables...' AS message;
-
-    TRUNCATE TABLE bronze.erp_loc_a101;
-
-    LOAD DATA LOCAL INFILE '/Users/ruteshzalavadiya/Desktop/source_crm/erp_loc_a101.csv'
-    INTO TABLE bronze.erp_loc_a101
-    FIELDS TERMINATED BY ','
-    ENCLOSED BY '"'
-    LINES TERMINATED BY '\n'
-    IGNORE 1 ROWS;
-
-    TRUNCATE TABLE bronze.erp_cust_az12;
-
-    LOAD DATA LOCAL INFILE '/Users/ruteshzalavadiya/Desktop/source_crm/erp_cust_az12.csv'
-    INTO TABLE bronze.erp_cust_az12
-    FIELDS TERMINATED BY ','
-    ENCLOSED BY '"'
-    LINES TERMINATED BY '\n'
-    IGNORE 1 ROWS;
-
-    TRUNCATE TABLE bronze.erp_px_cat_g1v2;
-
-    LOAD DATA LOCAL INFILE '/Users/ruteshzalavadiya/Desktop/source_crm/erp_px_cat_g1v2.csv'
-    INTO TABLE bronze.erp_px_cat_g1v2
-    FIELDS TERMINATED BY ','
-    ENCLOSED BY '"'
-    LINES TERMINATED BY '\n'
-    IGNORE 1 ROWS;
-
-    SET batch_end = NOW();
-
-    SELECT '========================================' AS message;
-    SELECT 'Bronze Layer Load Completed' AS message;
-    SELECT CONCAT('Total Load Time (seconds): ',
-                  TIMESTAMPDIFF(SECOND, batch_start, batch_end)) AS duration;
-    SELECT '========================================' AS message;
-
-END $$
-
-DELIMITER ;
-
-
-
-CALL bronze.load_bronze();
+		SET @batch_end_time = GETDATE();
+		PRINT '=========================================='
+		PRINT 'Loading Bronze Layer is Completed';
+        PRINT '   - Total Load Duration: ' + CAST(DATEDIFF(SECOND, @batch_start_time, @batch_end_time) AS NVARCHAR) + ' seconds';
+		PRINT '=========================================='
+	END TRY
+	BEGIN CATCH
+		PRINT '=========================================='
+		PRINT 'ERROR OCCURED DURING LOADING BRONZE LAYER'
+		PRINT 'Error Message' + ERROR_MESSAGE();
+		PRINT 'Error Message' + CAST (ERROR_NUMBER() AS NVARCHAR);
+		PRINT 'Error Message' + CAST (ERROR_STATE() AS NVARCHAR);
+		PRINT '=========================================='
+	END CATCH
+END
