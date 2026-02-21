@@ -124,6 +124,7 @@ data-warehouse-project/
 ├── .gitignore                          # Git ignore rules
 └── requirements.txt                    # Project requirements
 
+
 ---
 
 ## Credits
