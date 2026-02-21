@@ -1,39 +1,42 @@
 /*
 =============================================================
-Create Database and Schemas 
+Create Database and Schemas
 =============================================================
 Script Purpose:
-    This script creates a new database named 'data_warehouse_project' 
-    after checking if it already exists. If the database exists, 
-    it is dropped and recreated. Additionally, it creates three 
-    schemas/databases: 'bronze', 'silver', and 'gold'.
-
+    This script creates a new database named 'DataWarehouse' after checking if it already exists. 
+    If the database exists, it is dropped and recreated. Additionally, the script sets up three schemas 
+    within the database: 'bronze', 'silver', and 'gold'.
+	
 WARNING:
-    Running this script will drop the 'data_warehouse_project' database 
-    if it exists. All data in the database will be permanently deleted. 
-    Proceed with caution and ensure you have proper backups.
+    Running this script will drop the entire 'DataWarehouse' database if it exists. 
+    All data in the database will be permanently deleted. Proceed with caution 
+    and ensure you have proper backups before running this script.
 */
 
--- Show existing databases
-SHOW DATABASES;
+USE master;
+GO
 
--- Drop the database if it exists
-DROP DATABASE IF EXISTS data_warehouse_project;
+-- Drop and recreate the 'DataWarehouse' database
+IF EXISTS (SELECT 1 FROM sys.databases WHERE name = 'DataWarehouse')
+BEGIN
+    ALTER DATABASE DataWarehouse SET SINGLE_USER WITH ROLLBACK IMMEDIATE;
+    DROP DATABASE DataWarehouse;
+END;
+GO
 
--- Create the main database
-CREATE DATABASE data_warehouse_project;
+-- Create the 'DataWarehouse' database
+CREATE DATABASE DataWarehouse;
+GO
 
--- Switch to the new database
-USE data_warehouse_project;
+USE DataWarehouse;
+GO
 
--- Confirm current database
-SELECT DATABASE() AS current_database;
+-- Create Schemas
+CREATE SCHEMA bronze;
+GO
 
--- In MySQL, CREATE SCHEMA is a synonym for CREATE DATABASE
--- Creating bronze, silver, gold as separate schemas/databases
-CREATE SCHEMA IF NOT EXISTS bronze;
-CREATE SCHEMA IF NOT EXISTS silver;
-CREATE SCHEMA IF NOT EXISTS gold;
+CREATE SCHEMA silver;
+GO
 
--- Optional: Show databases to confirm
-SHOW DATABASES;
+CREATE SCHEMA gold;
+GO
