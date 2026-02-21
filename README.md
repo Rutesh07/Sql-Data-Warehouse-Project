@@ -123,9 +123,7 @@ data-warehouse-project/
 ├── LICENSE                             # License information
 ├── .gitignore                          # Git ignore rules
 └── requirements.txt                    # Project requirements
-
-
-
+```
 ---
 ## Credits
 - Built with guidance and inspiration from [Data With Baraa](https://www.youtube.com/@DataWithBaraa).
